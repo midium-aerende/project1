@@ -5,19 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redirection automatique</title>
     <script>
-        // Fonction de redirection
         function rediriger() {
-            window.location.href = "user.html"; // Redirige vers user.html
+            window.location.href = "user.html";
         }
 
-        // Redirection avec un délai de 2 secondes après le chargement de la page
         window.onload = function() {
-            setTimeout(rediriger, 2000); // 2000 millisecondes = 2 secondes
+            setTimeout(rediriger, 1000);
         };
     </script>
 </head>
 <body>
-    <h1>Vous allez être redirigé vers la page utilisateur...</h1>
+    <h1>Vous allez être redirigé</h1>
     <p>Si la redirection ne fonctionne pas automatiquement, <a href="user.html">cliquez ici</a>.</p>
 </body>
 </html>
