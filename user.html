@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interface de Publication</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            display: grid;
+            grid-template-rows: auto auto 1fr;
+            justify-items: center;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            padding-block: .5rem;
+        }
+
+        .header {
+            width: 100vw;
+            display: grid;
+            gap: .5rem;
+            grid-template-rows: 1fr 0rem;
+            justify-items: flex-end;
+            padding: 2rem;
+            position: relative;
+            top: 0;
+            right: 0;
+            z-index: 2;
+        }
+
+        .hamburger {
+            display: flex;
+            gap: .5rem;
+            flex-direction: column;
+            justify-content: center;
+            align-content: center;
+            align-items: center;
+            width: 3rem;
+            height: 2.8rem;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 10px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .hamburger:hover {
+            transform: scale(1.05);
+        }
+
+        .hamburger div {
+            width: 2rem;
+            height: 2rem;
+            background-color: white;
+            border-radius: 2px;
+            transition: background 0.3s ease;
+        }
+
+        .container {
+            width: 90vw;
+            max-width: 800px;
+            max-height: 80vh;
+            gap: .5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 1rem;
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+            margin-top: 1rem;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .container.show {
+            opacity: 1;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            position: relative;
+            backdrop-filter: blur(20px);
+            padding: .5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .input-field {
+            flex: 1;
+            height: 2.5rem;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 1rem;
+            font-size: 1rem;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            transition: background 0.3s, transform 0.3s;
+            word-wrap: break-word;
+        }
+
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .input-field:focus {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #0072ff, #00c6ff);
+            transform: translateY(-2px);
+        }
+
+        .card {
+            width: 100%;
+            padding: .5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            color: #fff;
+            backdrop-filter: blur(10px);
+            display: flex;
+            gap: .5rem;
+            flex-direction: column;
+            word-wrap: break-word;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card p {
+            font-size: .8rem;
+            padding: .5rem;
+            border-radius: .5rem;
+            background: rgba(255,255,255,0.1);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .delete-btn {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 1rem;
+            color: white;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .delete-btn:hover {
+            background: #ff110050;
+            transform: translateY(-2px);
+        }
+
+        .cards-container {
+            display: grid;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+            overflow-y: auto;
+            max-height: none;
+            padding: .5rem;
+        }
+
+        .toast {
+            position: fixed;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 123, 255, 0.85);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            font-size: 1rem;
+            opacity: 0;
+            transition: top 0.5s ease, opacity 0.5s ease;
+        }
+
+        .toast.show {
+            top: 20px;
+            opacity: 1;
+        }
+
+        .menu {
+            display: none;
+            height: 3.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            padding: .5rem;
+            z-index: 2;
+            align-content: center;
+            justify-content: center;
+        }
+
+        .menu.show {
+            display: grid;
+        }
+        
+        .centered {
+          align-items: center;
+          justify-content: center;
+          width: 100vw;
+          height: 90vh;
+        }
+
+        .login-btn, .logout-btn {
+            height: 2.5rem;
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .login-btn:hover, .logout-btn:hover {
+            background: linear-gradient(135deg, #0072ff, #00c6ff);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 600px) {
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                margin-left: 0;
+                margin-top: 1rem;
+            }
+
+            .header {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="hamburger" id="hamburgerMenu">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <div class="menu" id="menu">
+          <button class="logout-btn" id="logoutBtn">Déconnexion</button>
+        </div>
+    </div>
+    <div id="loginContainer" class="centered" style="display: none;">
+        <button class="login-btn" id="loginBtn">Se Connecter</button>
+    </div>
+
+    <div class="container" id="publicationContainer" style="display: none;">
+        <div class="input-group">
+            <input type="text" class="input-field" id="publicationInput" placeholder="Que voulez-vous publier ?">
+            <button class="btn" id="publishBtn">Publier</button>
+        </div>
+        <div class="cards-container" id="cardsContainer">
+            <!-- Les cartes de publication apparaîtront ici -->
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        let publications = JSON.parse(localStorage.getItem('publications')) || [];
+
+        function updateUI() {
+            if (currentUser) {
+                document.getElementById('publicationContainer').style.display = 'flex';
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('hamburgerMenu').style.display = 'flex';
+                document.getElementById('publicationContainer').classList.add('show');
+            } else {
+                document.getElementById('publicationContainer').style.display = 'none';
+                document.getElementById('loginContainer').style.display = 'flex';
+                document.getElementById('hamburgerMenu').style.display = 'none';
+                document.getElementById('menu').style.display = 'none';
+            }
+        }
+
+        function displayPublications() {
+            const cardContainer = document.getElementById('cardsContainer');
+            cardContainer.innerHTML = '';
+            publications.forEach((publication, index) => {
+                const newCard = document.createElement('div');
+                newCard.classList.add('card');
+
+                const cardTitle = document.createElement('h3');
+                cardTitle.textContent = publication.user;
+
+                const cardContent = document.createElement('p');
+                cardContent.textContent = publication.content;
+
+                if (currentUser && (currentUser.name === publication.user || currentUser.email === publication.user)) {
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.classList.add('delete-btn');
+                    deleteBtn.textContent = 'Supprimer';
+                    deleteBtn.addEventListener('click', () => deletePublication(index));
+                    cardTitle.appendChild(deleteBtn);
+                }
+
+                newCard.appendChild(cardTitle);
+                newCard.appendChild(cardContent);
+                cardContainer.prepend(newCard);
+            });
+        }
+
+        function deletePublication(index) {
+            if (confirm('Voulez-vous vraiment supprimer cette publication ?')) {
+                publications.splice(index, 1);
+                localStorage.setItem('publications', JSON.stringify(publications));
+                displayPublications();
+            }
+        }
+
+        document.getElementById('publishBtn').addEventListener('click', function() {
+            const inputField = document.getElementById('publicationInput');
+            const content = inputField.value.trim();
+
+            if (content === '') {
+                showToast('Veuillez entrer du contenu avant de publier.');
+                return;
+            }
+
+            const publication = {
+                user: currentUser.name || currentUser.email,
+                content
+            };
+
+            publications.push(publication);
+            localStorage.setItem('publications', JSON.stringify(publications));
+            displayPublications();
+            inputField.value = '';
+        });
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        document.getElementById('hamburgerMenu').addEventListener('click', function() {
+            document.getElementById('menu').classList.toggle('show');
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            updateUI();
+        });
+
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            window.location.href = 'login.html';
+        });
+
+        updateUI();
+        displayPublications();
+    </script>
+</body>
+</html>

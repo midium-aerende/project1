@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #000000, #222233);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
+            overflow: hidden;
+            padding: .5rem;
+        }
+
+        .title {
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            display: flex;
+            border-radius: 15px;
+            overflow: hidden;
+            width: 90vw;
+            max-width: 800px;
+            justify-content: center;
+            min-height: 60vh;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .background-left {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+        }
+
+        .form-container {
+            flex: 1;
+            padding: 40px;
+            min-height: 60vh;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: none;
+            border: none;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+            padding: 12px 0;
+            font-size: 1rem;
+            background: transparent;
+            color: #fff;
+            transition: border-color 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: #00ccff;
+            outline: none;
+        }
+
+        .input-label {
+            position: absolute;
+            left: 0;
+            top: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus + .input-label,
+        .input-field:not(:placeholder-shown) + .input-label {
+            top: -8px;
+            left: 0;
+            color: #00ccff;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            background: linear-gradient(90deg, #8f00ff, #00ccff);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            width: 100%;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            background: linear-gradient(90deg, #00ccff, #8f00ff);
+        }
+
+        .link {
+            color: #00ccff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            display: block;
+            text-align: center;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .toast {
+            position: fixed;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 123, 255, 0.85);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            font-size: 1rem;
+            opacity: 0;
+            transition: top 0.5s ease, opacity 0.5s ease;
+        }
+
+        .toast.show {
+            top: 20px;
+            opacity: 1;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                flex-direction: column;
+                width: 100%;
+                height: auto;
+            }
+            .title {
+                font-size: 2.5rem;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="title">Se connecter</div>
+    <div class="container">
+        <div class="background-left"></div>
+        <div class="form-container">
+            <h2>Connexion</h2>
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="email" class="input-field" placeholder=" " id="email" required>
+                    <label class="input-label">Adresse e-mail</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" class="input-field" placeholder=" " id="password" required>
+                    <label class="input-label">Mot de passe</label>
+                </div>
+                <button type="submit" class="btn">Se connecter</button>
+            </form>
+            <a href="signup.html" class="link">Pas encore inscrit ? Créez un compte</a>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hash = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const hashedPassword = await hashPassword(password);
+
+            const user = users.find(user => user.email === email && user.password === hashedPassword);
+
+            if (user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                showToast('Connexion réussie !');
+                setTimeout(() => {
+                    window.location.href = './user.html';
+                }, 2000);
+            } else {
+                showToast('E-mail ou mot de passe incorrect.');
+            }
+        });
+    </script>
+
+</body>
+</html>
